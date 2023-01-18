@@ -11,4 +11,8 @@ export class Config {
   get baseUrl() {
     return process.env.BASE_URL;
   }
+
+  get serverUrl() {
+    return process.env.SERVER_URL;
+  }
 }

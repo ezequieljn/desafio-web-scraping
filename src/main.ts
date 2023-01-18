@@ -10,6 +10,6 @@ const httpServer = new ExpressAdapter();
 const scraping = new Scraping(puppeteer);
 const productsUseCase = new GetProducts.Create(scraping, Config.init());
 new ProductsController(httpServer, productsUseCase);
-new MainController(httpServer);
+new MainController(httpServer, Config.init());
 
 httpServer.listen(3030);
