@@ -11,20 +11,31 @@ export class Scraping implements ScrapingInterface {
     laptops: "/computers/laptops",
     computers: "/computers",
     phones: "/phones",
-    touch: "phones/touch",
+    touch: "/phones/touch",
   };
 
   constructor(private puppeteer: any) {}
 
   async init(baseUrl: string): Promise<void> {
-    this.browser = await this.puppeteer.launch();
+    this.browser = await this.puppeteer.launch({
+      args: ["--no-sandbox"],
+      headless: true,
+    });
     this.webPage = await this.browser.newPage();
     this.baseUrl = baseUrl;
   }
 
-  async get(route: keyof routes) {
-    const url = `${this.baseUrl}${this.routes[route]}`;
+  private async loadPage(url: string) {
     await this.webPage.goto(url);
+  }
+
+  private generateUrl(route: keyof routes) {
+    return `${this.baseUrl}${this.routes[route] || `/${route}`}`;
+  }
+
+  async get(route: keyof routes) {
+    const url = this.generateUrl(route);
+    await this.loadPage(url);
     const divs = await this.webPage.$$(".row .thumbnail");
 
     const products: ProductsProps[] = [];
@@ -46,12 +57,13 @@ export class Scraping implements ScrapingInterface {
     return products;
   }
 
-  clearNumber(value: string) {
+  private clearNumber(value: string) {
     const regexOnlyNumber = /[^0-9.]/g;
-    return +value!.replace(regexOnlyNumber, "");
+    const stringValue = `${value}`;
+    return +stringValue!.replace(regexOnlyNumber, "");
   }
 
-  async getValueClass(div: ElementHandle<Element>, className: string) {
+  private async getValueClass(div: ElementHandle<Element>, className: string) {
     return div.$eval(className, (e) => e.textContent);
   }
 
