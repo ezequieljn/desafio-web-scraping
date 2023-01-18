@@ -6,3 +6,5 @@ services:
     build: .
     volumes:
       - .:/home/node/app
+    ports:
+      - 3030:3030
